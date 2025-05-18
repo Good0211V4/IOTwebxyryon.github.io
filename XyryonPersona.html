@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>~/about_me | terminal</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --cursor: #ffffff;
+            --highlight: #ffffff;
+            --selection: rgba(255, 255, 255, 0.2);
+            --glow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            margin: 20px;
+            border: 1px solid var(--text);
+            box-shadow: var(--glow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid var(--text);
+        }
+
+        .control-btn.close { background-color: #ff5f56; }
+        .control-btn.minimize { background-color: #ffbd2e; }
+        .control-btn.maximize { background-color: #27c93f; }
+
+        .terminal-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terminal-body {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--text) var(--bg);
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        .terminal-body::-webkit-scrollbar-thumb {
+            background-color: var(--text);
+            border-radius: 4px;
+        }
+
+        .prompt {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .prompt-user {
+            color: var(--highlight);
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .prompt-path {
+            color: var(--text);
+            margin-right: 5px;
+        }
+
+        .prompt-symbol {
+            color: var(--highlight);
+            margin-right: 5px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--cursor);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .command {
+            margin-bottom: 15px;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--text);
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--text) }
+        }
+
+        .output {
+            margin-bottom: 25px;
+        }
+        
+        
+        .output-line {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+            line-height: 1.8;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .directory {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .file {
+            margin-left: 20px;
+            display: block;
+        }
+
+        .file::before {
+            content: "› ";
+        }
+
+        .comment {
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .error {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .error::before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+        }
+
+        .success {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .success::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+        }
+
+        #input-line {
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+            padding: 0 20px 20px;
+        }
+
+        #command-input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            outline: none;
+            caret-color: var(--cursor);
+            padding: 5px 0;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--text), transparent);
+            margin: 15px 0;
+            opacity: 0.3;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border: 1px solid var(--text);
+            border-radius: 3px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--text);
+            animation: progress 2s ease-out forwards;
+        }
+
+        @keyframes progress {
+            from { width: 0% }
+            to { width: 100% }
+        }
+
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            line-height: 1.3;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .terminal-container {
+                height: 90vh;
+                margin: 10px;
+                border: none;
+            }
+            
+            .terminal-body {
+                padding: 15px;
+            }
+            
+            .ascii-art {
+                font-size: 0.7em;
+            }
+        }
+
+        ::selection {
+            background: var(--selection);
+            color: var(--text);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-controls">
+                <div class="control-btn close"></div>
+                <div class="control-btn minimize"></div>
+                <div class="control-btn maximize"></div>
+            </div>
+            <div class="terminal-title">~/about_me</div>
+            <div class="terminal-time" id="datetime"></div>
+        </div>
+        
+        <div class="terminal-body" id="terminal-body">
+            <div class="output" id="output">
+                <div class="output-line" style="animation-delay: 0.1s;">
+                    Last login: <span id="full-datetime"></span> on ttys001
+                </div>
+                <div class="output-line" style="animation-delay: 0.2s;">
+                    <span class="prompt-user">user</span><span class="prompt-symbol">@</span><span class="prompt-path">terminal</span><span class="prompt-symbol">:</span><span class="prompt-path">~</span><span class="prompt-symbol">%</span> <span class="command">./about_me --full</span>
+                </div>
+                <div class="output-line" style="animation-delay: 0.6s;">
+                    <div class="ascii-art">
+  _____ _   _ _______ ______  _______ _______ _______
+ |  |  | \ | |______ |_____] |_____| |______ |______
+ |  |  |  \| |______ |_____] |     | ______| ______|
+                    </div>
+                </div>
+                <div class="output-line" style="animation-delay: 0.9s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 1.3s;">
+                    <span class="directory">$ whoami</span>
+                </div>
+                <div class="output-line" style="animation-delay: 1.8s;">
+                    BATBAYAR TAMIR -- a casual student in Nest It school
+                </div>
+                <div class="output-line" style="animation-delay: 2.3s;">
+                    >_ I make small programms and somethings
+                </div>
+                <div class="output-line" style="animation-delay: 2.3s;">
+                    >_ And am 13 years old
+                </div>
+                <div class="output-line" style="animation-delay: 2.3s;">
+                    >_ Also am in 7a
+                </div>
+                <div class="output-line" style="animation-delay: 2.8s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 3.3s;">
+                    <span class="directory">$ skills --list --format=tags</span>
+                </div>
+                <div class="output-line" style="animation-delay: 3.8s;">
+                    <span class="tag">C</span>
+                    <span class="tag">JavaScript</span>
+                </div>
+                <div class="output-line" style="animation-delay: 4.3s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 4.8s;">
+                    <span class="directory">$ experience --timeline</span>
+                </div>
+                <div class="output-line" style="animation-delay: 5.3s;">
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="animation-delay: 5.8s;"></div>
+                    </div>
+                </div>
+                <div class="output-line" style="animation-delay: 6.3s;">
+                    <span class="file">2023-2024: A basic flowgrithm</span>
+                    <span class="file">2024-2025: HTML</span>
+                    <span class="file"> 2025-Present: Javascript, C, etc..</span>
+                </div>
+                <div class="output-line" style="animation-delay: 6.8s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 7.3s;">
+                    <span class="directory">$ projects --featured</span>
+                </div>
+                <div class="output-line" style="animation-delay: 7.8s;">
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="animation-delay: 8.3s;"></div>
+                    </div>
+                </div>
+                <div class="output-line" style="animation-delay: 8.8s;">
+                    <span class="file">Waiter Robot</span>
+                    <span class="file">Tank game html</span>
+                </div>
+                <div class="output-line" style="animation-delay: 9.3s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 9.8s;">
+                    <span class="directory">$ contact --me</span>
+                </div>
+                <div class="output-line" style="animation-delay: 10.3s;">
+                    <span class="file">Email: batbayaryura0@gmail.com</span>
+                    <span class="file">GitHub: github.com/good0211v2</span>
+                </div>
+                <div class="output-line" style="animation-delay: 10.8s;">
+                    <div class="divider"></div>
+                </div>
+                <div class="output-line" style="animation-delay: 11.3s;">
+                    <span class="comment"># Type 'help' for available commands when prompt appears</span>
+                </div>
+                <div class="output-line" style="animation-delay: 11.8s;">
+                    <span class="comment"># Try: whoami, skills, experience, projects, contact, clear</span>
+                </div>
+            </div>
+
+            <div class="prompt" id="prompt" style="display: none;">
+                <span class="prompt-user">user</span><span class="prompt-symbol">@</span><span class="prompt-path">terminal</span><span class="prompt-symbol">:</span><span class="prompt-path">~</span><span class="prompt-symbol">%</span>
+                <div class="cursor"></div>
+            </div>
+            <div id="input-line" style="display: none;">
+                <input type="text" id="command-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date/time
+        const now = new Date();
+        document.getElementById('datetime').textContent = now.toLocaleTimeString();
+        document.getElementById('full-datetime').textContent = now.toLocaleString();
+
+        // Show interactive prompt after animations complete
+        setTimeout(() => {
+            document.getElementById('prompt').style.display = 'flex';
+            document.getElementById('input-line').style.display = 'flex';
+            document.getElementById('command-input').focus();
+            
+            // Scroll to bottom
+            const terminalBody = document.getElementById('terminal-body');
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }, 18000);
+
+        // Command history and position
+        let commandHistory = [];
+        let historyPosition = 0;
+
+        // Available commands
+        const commands = {
+            'help': `Available commands:
+  whoami      - Show my information
+  skills      - List my technical skills
+  experience  - Show my work experience
+  projects    - List my notable projects
+  contact     - Show contact information
+  clear       - Clear the terminal
+  exit        - Close the terminal`,
+            'clear': function() { 
+                document.getElementById('output').innerHTML = '';
+                addOutput('user@terminal:~ % clear', '');
+            },
+            'whoami': `BATBAYAR  TAMIR
+>_ I make small programms and somethings anthing`,
+            'skills': `Technical Skills:
+  Languages:    C, Scratch, HTML, CSS, JavaScript
+  Platforms:    Unreal Engine, Azure`,
+            'experience': `Work Experience:
+  2023-2024: A basic flowgrithm
+                2024-2025: HTML
+                2025-Present: Javascript, C, etc..`,
+            'projects': `Waiter  robot`,
+            'contact': `Contact Information:
+  Email:    batbayaryura0@gmail.com
+  GitHub:   github.com/good0211v2`,
+            'exit': function() { 
+                addOutput('Closing terminal session...', ''); // so close.window was  no working so I had to make this 
+                setTimeout(() => { 
+                    document.body.innerHTML='<div class="terminal-container"><div class="terminal-header"><div class="terminal-controls"><div class="control-btn close"></div></div><div class="terminal-title">session terminated</div></div><div class="terminal-body" style="display: flex; align-items: center; justify-content: center; font-size: 1.5em;">Connection closed</div></div>';
+                }, 1000); 
+                return;
+            },
+            'sudo': 'Permission denied: no tty present and no askpass program specified',
+            'ls': 'README.md  about_me.txt  projects/  skills/  contact.sh',
+            'cat': 'Usage: cat [file]',
+            'rm': 'rm: cannot remove: Is a directory',
+            'mkdir': 'mkdir: cannot create directory: Permission denied',
+            'neofetch': `user@terminal
+------------
+OS: macOS Terminal (at the time)
+Host: About Me v3.1.0 (Notice this about me page is the 3rd one I made)
+Kernel: 5.15.0-25-generic
+Uptime: 1 years in tech
+CPU: Intel i5-9800f
+Memory: 16GB DDR4
+`,
+            'date': function() { addOutput(new Date().toString(), ''); }
+        };
+        // handle command input
+        document.getElementById('command-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim();
+                if (command) {
+                    //add to history
+                    commandHistory.push(command);
+                    historyPosition = commandHistory.length;
+                    
+                    // display command
+                    addOutput('<span class="prompt-user">user</span><span class="prompt-symbol">@</span><span class="prompt-path">terminal</span><span class="prompt-symbol">:</span><span class="prompt-path">~</span><span class="prompt-symbol">%</span> ' + command, '');
+                    
+                    // process command
+                    if (commands.hasOwnProperty(command.split(' ')[0])) {
+                        if (typeof commands[command.split(' ')[0]] === 'function') {
+                            commands[command.split(' ')[0]]();
+                        } else {
+                            addOutput(commands[command.split(' ')[0]], '');
+                        }
+                    } else {
+                        addOutput(`command not found: ${command.split(' ')[0]}`, 'error');
+                        addOutput(`Try 'help' for available commands`, 'comment');
+                    }
+                    
+                    // clear input
+                    this.value = '';} 
+                else {
+                    addOutput('<span class="prompt-user">user</span><span class="prompt-symbol">@</span><span class="prompt-path">terminal</span><span class="prompt-symbol">:</span><span class="prompt-path">~</span><span class="prompt-symbol">%</span>', '');
+                }
+                const terminalBody = document.getElementById('terminal-body');
+                terminalBody.scrollTop = terminalBody.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                if (commandHistory.length > 0 && historyPosition > 0) {
+                    historyPosition--;
+                    this.value = commandHistory[historyPosition];
+                }
+                e.preventDefault();
+            } else if (e.key === 'ArrowDown') {
+                if (commandHistory.length > 0 && historyPosition < commandHistory.length - 1) {
+                    historyPosition++;
+                    this.value = commandHistory[historyPosition];
+                } else {
+                    historyPosition = commandHistory.length;
+                    this.value = '';
+                }
+                e.preventDefault();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const input = this.value;
+                if (input) {
+                    const matches = Object.keys(commands).filter(cmd => 
+                        cmd.startsWith(input)
+                    );
+                    if (matches.length === 1) {
+                        this.value = matches[0];
+                    }
+                }
+            }
+        });
+        function addOutput(text, className = '') {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.className = 'output-line ' + className;
+            line.innerHTML = text;
+            output.appendChild(line);
+        }
+        const easterEggs = {
+            'matrix': function() {
+                const matrix = document.createElement('div');
+                matrix.className = 'ascii-art';
+                matrix.style.whiteSpace = 'pre';
+                matrix.style.lineHeight = '1';
+                matrix.style.fontFamily = 'monospace';
+                matrix.style.color = '#009a22';
+                
+                let chars = '';
+                for (let i = 0; i < 2000; i++) {
+                    chars += String.fromCharCode(0x30A0 + Math.random() * 96) + ' ';
+                    if (i % 40 === 0) chars += '\n';
+                }
+                matrix.textContent = chars;
+                
+                document.getElementById('output').appendChild(matrix);
+            },
+            'starwars': function() {
+                addOutput('A long time ago in a terminal far, far away...', '');
+                addOutput('Episode IV: A NEW HOPE FOR YOUR CODE', '');
+                addOutput('It is a period of civil war. Rebel developers, striking', '');
+                addOutput('from a hidden terminal, have won their first victory', '');
+                addOutput('against the evil Galactic Enterprise Architecture.', '');
+            },
+            'LOL': function() {
+                addOutput('How did you know this huh?', '');
+            },
+            'Xyryon': function(){
+                addOutput('Hey!! Thats my website!');
+            },
+           'munkhuu': function() {  // AHHH!! HOW TO MAKE THIS WORK!!!!
+        var img=document.createElement('img');
+        img.src="https://assets.results.specialolympics.org/dims4/default/9032974/2147483647/strip/true/crop/500x500+0+0/resize/320x320!/quality/90/?url=http%3A%2F%2Fsoi-brightspot.s3.amazonaws.com%2Fresults%2Fcb%2F4a%2Fbf26b27a47e2b5e09d939c7a1c2e%2F1172-img-703606.jpg";
+        var src=document.getElementById("img");
+        if(src){
+            src.appendChild(img); } 
+            else {
+            console.error('Element with id "imagem" not found.');}
+        addOutput('I knew it.');},
+        'dildo': function(){
+            const img = document.createElement('dildo');
+            img.src="https://assets.results.specialolympics.org/dims4/default/9032974/2147483647/strip/true/crop/500x500+0+0/resize/320x320!/quality/90/?url=http%3A%2F%2Fsoi-brightspot.s3.amazonaws.com%2Fresults%2Fcb%2F4a%2Fbf26b27a47e2b5e09d939c7a1c2e%2F1172-img-703606.jpg";
+            const src=document.getElementById('dildo');
+            if(src){
+                src.appendChild(img); 
+            }
+            else {
+                addOutput('FUCKKK!!!');
+            }
+        }
+        };
+        document.getElementById('command-input').addEventListener('keyup', function(e) {
+            const command = this.value.trim();
+            if (easterEggs.hasOwnProperty(command)) {
+                easterEggs[command]();
+                this.value = '';
+            }
+        });
+        document.querySelector('.control-btn.close').addEventListener('click', function() {
+            document.querySelector('.terminal-container').style.opacity = '0';
+            setTimeout(() => {
+                location.replace("XyryonIndex.html")
+            }, 900);
+        });
+        document.querySelector('.control-btn.minimize').addEventListener('click', function() {
+            document.querySelector('.terminal-container').style.transform = 'translateY(100vh)';
+            setTimeout(() => {
+                alert('Terminal minimized. Refresh page to restore.');
+            }, 300);
+        });
+        document.querySelector('.control-btn.maximize').addEventListener('click', function() {
+            const terminal = document.querySelector('.terminal-container');
+            if (terminal.style.width === '100%') {
+                terminal.style.width = '';
+                terminal.style.height = '';
+                terminal.style.maxWidth = '900px';
+                terminal.style.height = '80vh';} 
+                else {
+                terminal.style.width = '100%';
+                terminal.style.height = '100vh';
+                terminal.style.maxWidth = 'none';
+                terminal.style.margin = '0';
+                terminal.style.border = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
