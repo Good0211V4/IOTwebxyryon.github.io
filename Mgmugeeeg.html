@@ -1,69 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .Table1 {
-            background-color: #3498db;
-            text-align: center;
-            height: 200px;
-            width: 3000px;
-            color: white;
-            font-family: Arial, Helvetica, sans-serif;
-            border: transparent;
-            border-radius: 20px;
-        }
-        #Head1 {
-            font-size: 35px;
-        }
-        a {
-            color: white;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: transparent;
-            text-decoration:  none;
-            font-size: 20px;
-        }
-        #Table2 {
-            background-color: white;       
-            box-shadow: 3px 2px 10px 5px lightblue; 
-            width: 3000px;
-            height: 150px;
-            border: whitesmoke 2px;
-            border-radius: 20px;
-            text-align: left;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Миний Танилцуулга</title>
+  <style>
+    :root {
+      --primary: #3498db;
+      --background: #f4f4f4;
+      --text: #333;
+      --white: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header, footer {
+      background-color: var(--primary);
+      color: var(--white);
+      text-align: center;
+      padding: 20px;
+      border-radius: 0 0 20px 20px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+    }
+
+    header a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 18px;
+      margin-top: 10px;
+      display: inline-block;
+      padding: 8px 16px;
+      border: 1px solid white;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    header a:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .content {
+      max-width: 1000px;
+      margin: 30px auto;
+      background-color: var(--white);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+
+    .image-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .image-container img {
+      width: 200px;
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 14px;
+      border-radius: 20px 20px 0 0;
+    }
+  </style>
 </head>
 <body>
-    <table>
+
+  <header>
+    <h1>Миний Танилцуулга</h1>
+    <a href="index.html">Буцах</a>
+  </header>
+
+  <div class="content">
+
+    <div class="section">
+      <h2>Намайг танилцуулъя</h2>
+      <p>Сайн байна уу! Намайг Мөнхтөгс гэдэг. Би Nest IT Education сургуулийн 7а ангид сурдаг. Технологи, программчлал болон видео тоглоом сонирхдог. Ирээдүйд ухаалаг робот болон хиймэл оюун ухааны чиглэлээр ажиллахыг мөрөөддөг.</p>
+    </div>
+
+    <div class="section">
+      <h2>Миний чадварууд</h2>
+      <ul>
+        <li>HTML, CSS-ийн анхан шатны мэдлэгтэй</li>
+        <li>MakeCode ашиглан робот удирдаж чадна</li>
+        <li>PowerPoint, Word ашиглан тайлан, танилцуулга хийх чадвартай</li>
+        <li>Багаар ажиллах, асуудал шийдвэрлэх чадвартай</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Миний хобби</h2>
+      <ul>
+        <li>Видео тоглоом тоглох</li>
+        <li>Роботын төсөл дээр ажиллах</li>
+        <li>Шинэ зүйлс сурах</li>
+        <li>Дуу хөгжим сонсох</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Миний зорилго</h2>
+      <p>Миний хамгийн том зорилго бол ирээдүйд Монголдоо технологийн салбарт хувь нэмэр оруулах юм. Би олон улсын түвшний IT инженер болж, шинэ санаа, инновац бүхий бүтээгдэхүүн бүтээхийг хүсдэг.</p>
+    </div>
+
+    <div class="section">
+      <h2>Дуртай, сонирхолгүй, дургүй зүйлс</h2>
+      <table>
         <thead>
-            <td class="Table1"><h1 id="Head1">Миний Танилцуулга</h1>
-            <a href="XyryonIndex.html">Return</a>
-            </td>
+          <tr>
+            <th>Дуртай</th>
+            <th>Сонирхолгүй</th>
+            <th>Дургүй</th>
+          </tr>
         </thead>
-        <tr><td></td></tr>
-    </table>
-    <br>
-    <table>
-        <thead>
-            <td id="Table2">
-                <br>
-                <h1 style="font-family: sans-serif;">Миний Танилцуулга</h1>
-                <p style="font-size: 20px; font-family: sans-serif;">Би 12 настай хүүхэд бөгөөд Nest It Education-д суралцаж, 7а ангийн сурагч. Надад хамгийн их баяр баясгалан авчирдаг зүйл бол кофе желе юм.</p>
-                <p><img src=https://recipes.timesofindia.com/thumb/59253127.cms?imgsize=366911&width=800&height=800 alt="coffee pudding" style="height: 100px;"></p>
-            </td>
-        </thead>
-    </table>
-    <p></p>
-    <br>
-    <table>
-        <thead>
-            <td class="Table1" style="height: 80px;">
-                ©2025 Миний сайт
-            </td>
-        </thead>
-    </table>
+        <tbody>
+          <tr>
+            <td>Видео тоглоом</td>
+            <td>Спорт</td>
+            <td>Хэт олон хүнтэй газар</td>
+          </tr>
+          <tr>
+            <td>Кофе жель</td>
+            <td>Хов жив</td>
+            <td>Бохир, шалбаагтай орчин</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="image-container">
+      <img src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/f310/live/f36de0e0-6f86-11ef-b410-fbf02dca0fc5.png.webp" alt="PS5">
+    </div>
+
+    <div class="section">
+      <h2>Дуртай ишлэл</h2>
+      <blockquote>“Хэн ч чамд итгэхгүй байлаа ч чи өөртөө итгэ. Тэгвэл бүх зүйл боломжтой.”</blockquote>
+    </div>
+
+  </div>
+
+  <footer>
+    © 2025 Миний сайт. Бүх эрх хуулиар хамгаалагдсан.
+  </footer>
+
 </body>
 </html>
